@@ -1,6 +1,7 @@
 /*
- * jQuery plugin: fieldSelection - v0.1.1 - last change: 2006-12-16
+ * jQuery plugin: fieldSelection - v0.2
  * (c) 2006 Alex Brem <alex@0xab.cd> - http://blog.0xab.cd
+ * Modified by Dmitriy Sintsov <questpc@rambler.ru>
  */
 
 (function() {
@@ -72,10 +73,41 @@
 
 			)();
 
+		},
+
+		setSelection: function(range) {
+			var e = (this.jquery) ? this[0] : this;
+			if ( range === null ) {
+				return jQuery(e);
+			}
+			if (e.setSelectionRange) {
+				e.setSelectionRange(range.start, range.end);
+			} else if (e.createTextRange) {
+				var range = e.createTextRange();
+				range.collapse(true);
+				range.moveEnd('character', range.end);
+				range.moveStart('character', range.start);
+				range.select();
+			}
+			return jQuery(e);
+		},
+
+		valKeepSelection: function( value ) {
+			var $e = (this.jquery) ? this : jQuery(this);
+			var currentFocus = jQuery('*:focus').get(0) === $e.get(0);
+			var caret;
+			if ( currentFocus ) {
+				caret = $e.getSelection();
+			}
+			$e.val( value );
+			if ( currentFocus ) {
+				$e.setSelection( caret );
+			}
+			return $e;
 		}
 
 	};
 
-	jQuery.each(fieldSelection, function(i) { jQuery.fn[i] = this; });
+	jQuery.extend(jQuery.fn, fieldSelection);
 
 })();
